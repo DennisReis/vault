@@ -1,0 +1,16 @@
+{
+    "server":  true,
+    "node_name": "consul-01",
+    "datacenter": "dc1",
+    "data_dir": "/var/lib/consul/data",
+    "bind_addr": "0.0.0.0",
+    "client_addr": "0.0.0.0",
+    "advertise_addr": "172.31.46.131",
+    "bootstrap_expect": 3,
+    "retry_join": ["172.31.46.131", "172.31.34.67", "172.31.47.76"],
+    "ui": true,
+    "log_level": "DEBUG",
+    "enable_syslog": true,
+    "acl_enforce_version_8": false
+  }
+  

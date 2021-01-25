@@ -1,0 +1,90 @@
+---
+  - name: Instalando o Vault
+    hosts: 'all'
+    become: yes
+    become_method: sudo
+    tasks:
+    - name: Instalando o unzip
+      package:
+        name: unzip
+        state: latest
+    - name: Instalando o Vault
+      unarchive:
+        src: https://releases.hashicorp.com/vault/1.4.2/vault_1.4.2_linux_amd64.zip
+        dest: /usr/local/bin
+        remote_src: True
+    - name: Habilitando o autocomplete
+      shell: vault -autocomplete-install
+    - name: Criando o grupo vault
+      group:
+        name: vault
+        state: present
+    - name: Criando o usuario vault
+      user:
+        name: vault
+        group: vault
+    - name: Criando log directory
+      file:
+        path: /var/log/vault
+        state: directory
+        mode: 0755
+        owner: vault
+        group: vault
+    - name: Criando o var/lib/vault
+      file:
+        path: /var/lib/vault
+        state: directory
+        mode: 0755
+        owner: vault
+        group: vault
+    - name: Criando o var/lib/vault/data
+      file:
+        path: /var/lib/vault/data
+        state: directory
+        mode: 0755
+        owner: vault
+        group: vault
+    - name: Link /var/log/vault em /var/lib/vault/logs
+      file:
+        src: /var/log/vault
+        dest: /var/lib/vault/logs
+        state: link
+    - name: Criando /etc/vault
+      file:
+        path: /etc/vault
+        state: directory
+        mode: 0755
+        owner: vault
+        group: vault
+    - name: Copiando config.hcl
+      copy:
+        src: config.hcl
+        dest: /etc/vault/config.hcl
+        owner: vault
+        group: vault
+        mode: 0755
+    - name: Copiando vault.service
+      copy:
+        src: vault.service
+        dest: /etc/systemd/system/vault.service
+        owner: vault
+        group: vault
+        mode: 0755
+    - name: Copiando policy
+      copy:
+        src: primeira-policy.hcl
+        dest: /home/ubuntu/policy.hcl
+        owner: vault
+        group: vault
+        mode: 0755
+    - name: Recarregando o daemon-reload
+      shell: systemctl daemon-reload
+    - name: Configurando VAULT_ADDR
+      lineinfile:
+        path: /home/ubuntu/.bashrc
+        line: "export VAULT_ADDR='http://127.0.0.1:8200'"
+    - name: Habilitando o service vault
+      service:
+        name: vault
+        enabled: yes
+        state: reloaded
